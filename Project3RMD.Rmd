@@ -1,0 +1,114 @@
+---
+title: "Project3"
+author: "Kelley Breeze and Chuanni He"
+date: "2022-10-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+# Introduction  
+
+**You should have an introduction section that briefly describes the data and the variables you have to work with (just discuss the ones you want to use). Your target variables is the shares variable.**
+**You should also mention the purpose of your analysis and the methods you’ll use to model the response. You’ll describe those in more detail later.**
+**This section should be done by the ‘second’ group member. **  
+
+#### Packages Used  
+
+```{r}
+library(tidyverse)
+library(caret)
+```
+
+
+# Data  
+
+The code below uses a relative file path to import our data.  
+
+```{r}
+onlineNewsData<-read_csv('OnlineNewsPopularity.csv')
+```
+
+
+#### `channelSelect()` Helper Function  
+
+Next, we will subset our data to work on the first channel, `data_channel_is_lifestyle`.  We will create a helper function called `channelSelect()` to easily subset our data for different channels as desired.  
+
+```{r}
+channelSelect<- function(channel){
+  onlineNewsData%>%
+    select((paste0('data_channel_is_',channel)) | !starts_with('data_channel_is'))
+}
+```
+
+
+Using `channelSelect()` function to select only information about the `data_channel_is_lifestyle` variable.  
+
+```{r}
+lifestyleChannelData<-channelSelect('lifestyle')
+```
+
+
+
+
+# Summarizations  
+
+**You should produce some basic (but meaningful) summary statistics and plots about the training data you are working with (especially as it relates to your response).**  
+
+**As you will automate this same analysis across other data, you can’t describe the trends you see in the graph (unless you want to try to automate that!). You should describe what to look for in the summary statistics/plots to help the reader understand the summary or graph. Ex: A scatter plot with the number of shares on the y-axis and the positive word rate on the x-axis is created:** 
+
+**'We can inspect the trend of shares as a function of the positive word rate. If the points show an upward trend, then articles with more positive words tend to be shared more often. If we see a negative trend then articles with more positive words tend to be shared less often.'**
+
+**Each group member is responsible for producing some summary statistics (means, sds, contingency tables, etc.) and for producing at least three graphs (each) of the data. ** 
+
+
+# Modeling  
+
+#### Spliting the Data  
+
+**You’ll need to split the data into a training (70% of the data) and test set (30% of the data). Use set.seed() to make things reproducible. The goal is to create models for predicting the number of shares in some way. Each group member should contribute a linear regression model and an ensemble tree-based model. As we are automating things, describing the chosen model is tough, so no need to worry about that.**
+
+
+The `splitDataFunction()` will split our dataset into a `newsTrain` set (containing 70% of our data) and a `newsTest` set (containing 30% of our data).  
+
+```{r}
+splitDataFunction<- function(datasetChannel){
+# set.seed for reproducibility
+  set.seed(1234)
+#Creating our training index and splitting our data.
+  trainIndex<- createDataPartition(datasetChannel$timedelta, p = 0.70, list=FALSE)
+  newsTrain<- datasetChannel[trainIndex,]
+  newsTest<- datasetChannel[-trainIndex,]
+  
+  return(list(newsTrain, newsTest))
+}
+```
+
+```{r}
+splitLifestyle<-splitDataFunction(lifestyleChannelData)
+```
+
+## Random Forest Model  
+
+**The first group member should fit a random forest model. Prior to each ensemble model, you should provide a short but reasonably thorough explanation of the ensemble model you are using (so one for each group member).**
+
+
+## Boosted Tree Model  
+
+**The second group member should fit a boosted tree model. Prior to each ensemble model, you should provide a short but reasonably thorough explanation of the ensemble model you are using (so one for each group member).**
+
+## Linear Regression Models  
+
+**Prior to the models fit using linear regression, the first group member should provide a short but thorough explanation of the idea of a linear regression model.**
+
+
+# Comparison  
+
+**All four of the models should be compared on the test set and a winner declared (this should be automated to be correct across all the created documents). This can be done by one group member and the automation done by the other (see below).**
+
+
+# Automation  
+
+**Once you’ve completed the above for a particular data channel, adapt the code so that you can use a parameter in your build process. You should be able to automatically generate an analysis report for each data_channel_is_* variable - although again, you may want to create a new variable to help with the subsetting. You’ll end up with six total outputted documents. This should be done by the group member that doesn’t automate the comparison of models part.**
