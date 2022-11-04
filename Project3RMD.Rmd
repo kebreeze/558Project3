@@ -11,9 +11,27 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
 # Introduction  
 
-**You should have an introduction section that briefly describes the data and the variables you have to work with (just discuss the ones you want to use). Your target variables is the shares variable.**
-**You should also mention the purpose of your analysis and the methods you’ll use to model the response. You’ll describe those in more detail later.**
-**This section should be done by the ‘second’ group member. **  
+This report contains a set of predictive models with automating mechanism. The data to be analyzed is the Online News Popularity Data Set summarizing a heterogeneous set of features about articles published by Mashable in a period of two years. The goal is to predict the number of shares in social networks (popularity). The dataset contains 39,644 observations with 61 variables.  
+In this project, we selected a subset of the variables as the predictor. Detailed descriptions for the predicting variables are listed below.
+* `n_tokens_title`: Number of words in the title.
+* `n_tokens_content`: Number of words in the content.
+* `n_unique_tokens`: Rate of unique words in the content.
+* `average_token_length`: Average length of the words in the content.
+* `num_keywords`: Number of keywords in the metadata.
+* `num_hrefs`: Number of links.
+* `num_imgs`: Number of images.
+* `num_videos`: Number of videos.
+* `kw_min_min`: Worst keyword (min. shares).
+* `kw_max_min`: Worst keyword (max. shares).
+* `self_reference_min_shares`: Min. shares of referenced articles in Mashable.
+* `self_reference_max_shares`: Max. shares of referenced articles in Mashable.
+* `weekday_is_friday`: Was the article published on a Friday?
+* `weekday_is_saturday`: Was the article published on a Saturday?
+* `global_rate_positive_words`: Rate of positive words in the content.
+* `global_rate_negative_words`: Rate of negative words in the content.  
+
+The target variables is the `shares` variable indicating number of shares (target). The purpose of this project is to identify the optimal predicting variables and methods to predict the number of shares. This project applied statistical prediction models such as linear regression,  random forest model, and boosted tree model.
+ 
 
 #### Packages Used  
 
@@ -31,12 +49,42 @@ The code below uses a relative file path to import our data.
 onlineNewsData<-read_csv('OnlineNewsPopularity.csv')
 ```
 
+# Subset the data
+
+We create a new variable `data_channel` representing all data chennels, and remove the six data channel variables.
+
+```{r}
+data_channel = rep(NA,nrow(onlineNewsData[,1]))
+for (i in 1:nrow(onlineNewsData[,1])) {
+  if (onlineNewsData$data_channel_is_lifestyle[i]==1) {data_channel[i]="lifestyle"} 
+  else if (onlineNewsData$data_channel_is_entertainment[i]==1) {data_channel[i]="entertainment"}
+  else if (onlineNewsData$data_channel_is_bus[i]==1) {data_channel[i]="bus"}
+  else if (onlineNewsData$data_channel_is_socmed[i]==1) {data_channel[i]="socmed"}
+  else if (onlineNewsData$data_channel_is_tech[i]==1) {data_channel[i]="tech"}
+  else if (onlineNewsData$data_channel_is_world[i]==1) {data_channel[i]="world"}
+  else {data_channel[i]="NotApplicable"}
+}
+onlineNewsData = onlineNewsData[,-c(14:19)]
+onlineNewsData = cbind(onlineNewsData,data_channel)
+```
+
+
+
+
+
+
+
+
+
+
+
 
 #### `channelSelect()` Helper Function  
 
 Next, we will subset our data to work on the first channel, `data_channel_is_lifestyle`.  We will create a helper function called `channelSelect()` to easily subset our data for different channels as desired.  
 
 ```{r}
+## I do not think this is the one for automating. Please see the email, thanks!
 channelSelect<- function(channel){
   onlineNewsData%>%
     select((paste0('data_channel_is_',channel)) | !starts_with('data_channel_is'))
@@ -47,6 +95,7 @@ channelSelect<- function(channel){
 Using `channelSelect()` function to select only information about the `data_channel_is_lifestyle` variable.  
 
 ```{r}
+## I do not think this is the one for automating. Please see the email, thanks!
 lifestyleChannelData<-channelSelect('lifestyle')
 ```
 
