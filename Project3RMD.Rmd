@@ -12,22 +12,22 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 # Introduction  
 
 This report contains a set of predictive models with automating mechanism. The data to be analyzed is the Online News Popularity Data Set summarizing a heterogeneous set of features about articles published by Mashable in a period of two years. The goal is to predict the number of shares in social networks (popularity). The dataset contains 39,644 observations with 61 variables.  
-In this project, we selected a subset of the variables as the predictor. Detailed descriptions for the predicting variables are listed below.
-* `n_tokens_title`: Number of words in the title.
-* `n_tokens_content`: Number of words in the content.
-* `n_unique_tokens`: Rate of unique words in the content.
-* `average_token_length`: Average length of the words in the content.
-* `num_keywords`: Number of keywords in the metadata.
-* `num_hrefs`: Number of links.
-* `num_imgs`: Number of images.
-* `num_videos`: Number of videos.
-* `kw_min_min`: Worst keyword (min. shares).
-* `kw_max_min`: Worst keyword (max. shares).
-* `self_reference_min_shares`: Min. shares of referenced articles in Mashable.
-* `self_reference_max_shares`: Max. shares of referenced articles in Mashable.
-* `weekday_is_friday`: Was the article published on a Friday?
-* `weekday_is_saturday`: Was the article published on a Saturday?
-* `global_rate_positive_words`: Rate of positive words in the content.
+In this project, we selected a subset of the variables as the predictor. Detailed descriptions for the predicting variables are listed below.  
+* `n_tokens_title`: Number of words in the title.  
+* `n_tokens_content`: Number of words in the content. 
+* `n_unique_tokens`: Rate of unique words in the content.  
+* `average_token_length`: Average length of the words in the content.  
+* `num_keywords`: Number of keywords in the metadata.  
+* `num_hrefs`: Number of links.  
+* `num_imgs`: Number of images.  
+* `num_videos`: Number of videos.  
+* `kw_min_min`: Worst keyword (min. shares).  
+* `kw_max_min`: Worst keyword (max. shares).  
+* `self_reference_min_shares`: Min. shares of referenced articles in Mashable.  
+* `self_reference_max_shares`: Max. shares of referenced articles in Mashable.  
+* `weekday_is_friday`: Was the article published on a Friday?  
+* `weekday_is_saturday`: Was the article published on a Saturday?  
+* `global_rate_positive_words`: Rate of positive words in the content.  
 * `global_rate_negative_words`: Rate of negative words in the content.  
 
 The target variables is the `shares` variable indicating number of shares (target). The purpose of this project is to identify the optimal predicting variables and methods to predict the number of shares. This project applied statistical prediction models such as linear regression,  random forest model, and boosted tree model.
@@ -35,9 +35,11 @@ The target variables is the `shares` variable indicating number of shares (targe
 
 #### Packages Used  
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(caret)
+library(corrplot)
+library(gbm)
 ```
 
 
@@ -45,13 +47,13 @@ library(caret)
 
 The code below uses a relative file path to import our data.  
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 onlineNewsData<-read_csv('OnlineNewsPopularity.csv')
 ```
 
 # Subset the data
 
-We create a new variable `data_channel` representing all data chennels, and remove the six data channel variables.
+We create a new variable `data_channel` representing all data chennels, and remove the six data channel variables. Next, we clean up the dataset to only include predicting variables and the response variable.
 
 ```{r}
 data_channel = rep(NA,nrow(onlineNewsData[,1]))
@@ -62,47 +64,73 @@ for (i in 1:nrow(onlineNewsData[,1])) {
   else if (onlineNewsData$data_channel_is_socmed[i]==1) {data_channel[i]="socmed"}
   else if (onlineNewsData$data_channel_is_tech[i]==1) {data_channel[i]="tech"}
   else if (onlineNewsData$data_channel_is_world[i]==1) {data_channel[i]="world"}
-  else {data_channel[i]="NotApplicable"}
+  else {data_channel[i]=NA}
 }
 onlineNewsData = onlineNewsData[,-c(14:19)]
 onlineNewsData = cbind(onlineNewsData,data_channel)
+onlineNewsData = onlineNewsData %>% 
+  select(data_channel,n_tokens_title,n_tokens_content,n_unique_tokens,
+         average_token_length,num_keywords,num_hrefs,num_imgs,num_videos,
+         kw_min_min,kw_max_min,self_reference_min_shares,self_reference_max_shares,
+         weekday_is_friday,weekday_is_saturday,global_rate_positive_words,
+         global_rate_negative_words,shares) %>% filter(data_channel=="lifestyle")
+
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-#### `channelSelect()` Helper Function  
-
-Next, we will subset our data to work on the first channel, `data_channel_is_lifestyle`.  We will create a helper function called `channelSelect()` to easily subset our data for different channels as desired.  
-
-```{r}
-## I do not think this is the one for automating. Please see the email, thanks!
-channelSelect<- function(channel){
-  onlineNewsData%>%
-    select((paste0('data_channel_is_',channel)) | !starts_with('data_channel_is'))
-}
-```
-
-
-Using `channelSelect()` function to select only information about the `data_channel_is_lifestyle` variable.  
-
-```{r}
-## I do not think this is the one for automating. Please see the email, thanks!
-lifestyleChannelData<-channelSelect('lifestyle')
-```
-
-
 
 
 # Summarizations  
+First, let's summarize the training data to look at the basic distribution of our selected variables. We need to fist split the data into training set and test set.
+```{r}
+set.seed(123)
+train = sample(1:nrow(onlineNewsData), size = nrow(onlineNewsData)*0.7)
+test = setdiff(1:nrow(onlineNewsData), train)
+
+dat_train <- onlineNewsData[train, ]
+dat_test <- onlineNewsData[test, ]
+```
+
+Next we will do some summarization statistics and plots. We first make a scatter plot showing the relationship between `share` and `num_image`.  If the points show an upward trend, then articles with more images tend to be shared more often. If we see a negative trend then articles with more images tend to be shared less often.
+```{r}
+plot(dat_train$num_imgs,dat_train$shares,type = "point",xlab = "Number of images",
+     ylab = "Number of shares")
+```
+
+Next, we want to investigate the correlation between numeric variables. If the correlation coefficient is large and positive with `share`, then higher value of the corresponding variable, the more share it tents to be. If the correlation coefficient is small and negative with `share`, then higher value of the corresponding variable, the less share it tents to be.
+```{r}
+cor_mat = cor(cbind(n_tokens_title=dat_train$n_tokens_title, n_tokens_content=dat_train$n_tokens_content,
+                    n_tokens_content=dat_train$n_tokens_content,n_unique_tokens=dat_train$n_unique_tokens,
+                    average_token_length=dat_train$average_token_length,num_keywords=dat_train$num_keywords,
+                    num_hrefs=dat_train$num_hrefs,num_imgs=dat_train$num_imgs,num_videos=dat_train$num_videos,
+                    kw_min_min=dat_train$kw_min_min,kw_max_min=dat_train$kw_max_min,
+                    self_reference_min_shares=dat_train$self_reference_min_shares,
+                    self_reference_max_shares=dat_train$self_reference_max_shares,
+                    global_rate_positive_words=dat_train$global_rate_positive_words,
+                    global_rate_negative_words=dat_train$global_rate_negative_words,shares=dat_train$shares))
+corrplot(cor_mat)
+```
+
+Next, we also want to know whether the article is published during weekends will affect the shares. We use Friday and Saturday data as an illustration. If the box for Saturday subset is overall higher than that for Friday, we can say that the shares might be more for news published during weekends. If the box for Saturday subset is overall lower than that for Friday, we can say that the shares might be fewer for news published during weekends. 
+```{r}
+par(mfrow=c(1,2))
+boxplot(dat_train$shares[dat_train$weekday_is_friday==1], ylim=c(0,10000))
+boxplot(dat_train$shares[dat_train$weekday_is_saturday==1], ylim=c(0,10000))
+```
+
+We made two contingency tables to list the number of publications on Fri. and Sat.
+```{r}
+table(dat_train$weekday_is_friday)
+table(dat_train$weekday_is_saturday)
+```
+
+The positive words and negative words ratio can provide an overall attitude of the corresponding news. We made five-point summary statistics to investigate the distributions.
+```{r}
+summary(dat_train$global_rate_positive_words)
+summary(dat_train$global_rate_negative_words)
+```
+
+
+
+
 
 **You should produce some basic (but meaningful) summary statistics and plots about the training data you are working with (especially as it relates to your response).**  
 
@@ -120,24 +148,13 @@ lifestyleChannelData<-channelSelect('lifestyle')
 **You’ll need to split the data into a training (70% of the data) and test set (30% of the data). Use set.seed() to make things reproducible. The goal is to create models for predicting the number of shares in some way. Each group member should contribute a linear regression model and an ensemble tree-based model. As we are automating things, describing the chosen model is tough, so no need to worry about that.**
 
 
-The `splitDataFunction()` will split our dataset into a `newsTrain` set (containing 70% of our data) and a `newsTest` set (containing 30% of our data).  
-
+The entire dataset has been split into training set and test set in the Summarizations section. The training set is `dat_train` and the test set is `dat_test`.
 ```{r}
-splitDataFunction<- function(datasetChannel){
-# set.seed for reproducibility
-  set.seed(1234)
-#Creating our training index and splitting our data.
-  trainIndex<- createDataPartition(datasetChannel$timedelta, p = 0.70, list=FALSE)
-  newsTrain<- datasetChannel[trainIndex,]
-  newsTest<- datasetChannel[-trainIndex,]
-  
-  return(list(newsTrain, newsTest))
-}
+# Kelley: sorry for deleting your code. The Summarization requires us to split the data and I did it before noticing your data split code. Please use the `dat_train` and ``dat_test` variables for future coding. Thanks!
+# Please delete this chunk once you read it.
 ```
 
-```{r}
-splitLifestyle<-splitDataFunction(lifestyleChannelData)
-```
+
 
 ## Random Forest Model  
 
@@ -148,9 +165,43 @@ splitLifestyle<-splitDataFunction(lifestyleChannelData)
 
 **The second group member should fit a boosted tree model. Prior to each ensemble model, you should provide a short but reasonably thorough explanation of the ensemble model you are using (so one for each group member).**
 
+The basic principles of gradient boosting are as follows: given a loss function and a weak learner, the algorithm finds an additive model that minimizes the loss function. The algorithm is initialized with the best guess of the response. The gradient is calculated, and a model is then fit to the residuals to minimize the loss function. The current model is added to the previous model, and the procedure continues for a number of iterations that the user specified.  
+
+Based on such inferences, we have fit a gradient boosting model with the RSS loss (distribution = “gaussian”), the sequentially generated trees (n.trees), shrinkage, and interaction depth are the tuning parameter to make the tune grid. We set tree control parameter minimum number of observations in a node to be 10 (n.minobsinnode = 10). We also specified use of 5-fold CV to estimate test error rate. By default, the bagging fraction is taken to be 0.5 (bag.fraction = 0.5 is not specified as it is default). We identified the best fit in terms of minimal RMSE, and trained a final model to obtain the test MSE based on the test set.  
+```{r}
+set.seed(123)
+gr = expand.grid(shrinkage = c(0.1, 0.05, 0.01, 0.005, 0.001),
+                 interaction.depth = c(1,2,3),n.trees = seq(10, 1000, by=50),
+                 n.minobsinnode = 10)
+boosting = train(shares ~ .,data = dat_train[,-1],method = "gbm",
+                  trControl = trainControl(method = "cv",number = 5),
+                  tuneGrid = gr,verbose = FALSE)
+
+plot(boosting)
+best = which.min(boosting$results$RMSE)
+boosting$results[best,]
+
+boosting_final = gbm(formula = shares ~ .,data = dat_train[,-1],distribution = "gaussian",
+                     n.trees = boosting$results[best,]$n.trees,
+                     shrinkage = boosting$results[best,]$shrinkage,
+                     interaction.depth = boosting$results[best,]$interaction.depth,
+                     n.minobsinnode = 10)
+
+MSE_boosting = mean((dat_test$shares-predict(boosting_final, newdata = dat_test))^2)
+```
+
+
+
+
 ## Linear Regression Models  
 
 **Prior to the models fit using linear regression, the first group member should provide a short but thorough explanation of the idea of a linear regression model.**
+
+For the first linear regression model, we fit a full model without interaction term. Then obtain the test MSE on the test set.
+```{r}
+lmod1 = lm(shares~., data = dat_train[,-1])
+MSE_lmod1 = mean((dat_test$shares-predict(lmod1, newdata = dat_test))^2)
+```
 
 
 # Comparison  
