@@ -3,6 +3,8 @@ title: "Project3"
 author: "Kelley Breeze and Chuanni He"
 date: "2022-10-31"
 output: html_document
+params:
+  data_channel:
 ---
 
 ```{r setup, include=FALSE}
