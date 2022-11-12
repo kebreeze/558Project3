@@ -545,7 +545,7 @@ statistics to investigate the distributions.</p>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ## 0.00000 0.01046 0.01552 0.01641 0.02115 0.05785</code></pre>
 <p>Let’s also look at how positive words are related to shares and
-number of images in an article. The scatterplot below shows the number
+number of images in an article. The scatter plot below shows the number
 of positive words in an article, colored by the number of images
 contained in the article.</p>
 <pre class="r"><code>ggplot(dat_train, aes(x=global_rate_positive_words, y=shares, color=num_imgs)) + 
@@ -571,13 +571,6 @@ contained in the article.</p>
 <h1>Modeling</h1>
 <div id="spliting-the-data" class="section level4">
 <h4>Spliting the Data</h4>
-<p><strong>You’ll need to split the data into a training (70% of the
-data) and test set (30% of the data). Use set.seed() to make things
-reproducible. The goal is to create models for predicting the number of
-shares in some way. Each group member should contribute a linear
-regression model and an ensemble tree-based model. As we are automating
-things, describing the chosen model is tough, so no need to worry about
-that.</strong></p>
 <p>The entire dataset has been split into training set and test set in
 the Summarizations section. The training set is <code>dat_train</code>
 and the test set is <code>dat_test</code>.</p>
@@ -632,10 +625,6 @@ MSE_random_forest = mean((dat_test$shares-predict(random_forest_final, newdata =
 </div>
 <div id="boosted-tree-model" class="section level3">
 <h3>Boosted Tree Model</h3>
-<p><strong>The second group member should fit a boosted tree model.
-Prior to each ensemble model, you should provide a short but reasonably
-thorough explanation of the ensemble model you are using (so one for
-each group member).</strong></p>
 <p>The basic principles of gradient boosting are as follows: given a
 loss function and a weak learner, the algorithm finds an additive model
 that minimizes the loss function. The algorithm is initialized with the
@@ -680,12 +669,11 @@ MSE_boosting = mean((dat_test$shares-predict(boosting_final, newdata = dat_test)
 </div>
 <div id="linear-regression-models" class="section level2">
 <h2>Linear Regression Models</h2>
-<p><strong>Prior to the models fit using linear regression, the first
-group member should provide a short but thorough explanation of the idea
-of a linear regression model.</strong> Linear regression provides a
-relatively simple way to predict a quantitative response. In a simple
-linear regression we use a single predictor <span class="math inline">\(X\)</span> to predict a response <span class="math inline">\(Y\)</span>. In a simple linear model we have two
-unknown constants, <span class="math inline">\(\beta_{0}\)</span>
+<p>Linear regression provides a relatively simple way to predict a
+quantitative response. In a simple linear regression we use a single
+predictor <span class="math inline">\(X\)</span> to predict a response
+<span class="math inline">\(Y\)</span>. In a simple linear model we have
+two unknown constants, <span class="math inline">\(\beta_{0}\)</span>
 represents the intercept and <span class="math inline">\(\beta_{1}\)</span> represents the slope. <span class="math inline">\(\beta_{0}\)</span> is the expected value of <span class="math inline">\(Y\)</span> when <span class="math inline">\(X=0\)</span>. <span class="math inline">\(\beta_{1}\)</span> is the average change in <span class="math inline">\(Y\)</span> that is associated with an increase of
 one-unit of <span class="math inline">\(X\)</span>. In linear regression
 we use our training data to produce estimated values for <span class="math inline">\(\beta_{0}\)</span> and <span class="math inline">\(\beta_{1}\)</span> which can then be used to make
@@ -724,10 +712,18 @@ MSE_lmod2 = mean((dat_test$shares-predict(lmod2, newdata = dat_test))^2)</code><
 </div>
 <div id="comparison" class="section level1">
 <h1>Comparison</h1>
-<p><strong>All four of the models should be compared on the test set and
-a winner declared (this should be automated to be correct across all the
-created documents). This can be done by one group member and the
-automation done by the other (see below).</strong></p>
+<p>We applied the MSE metric to represent the performance for different
+models. Next, the MSE metrics for all the four models
+(<code>lmod1</code>, <code>lmod2</code>, <code>random_forest</code>, and
+<code>boosting</code>) were compared. The best model with minimal test
+MSE values were identified as the winner.</p>
+<pre class="r"><code>model_name&lt;-c(&quot;Random Forest Model&quot;, &quot;Boosted Model&quot;, &quot;Linear Model 1&quot;, &quot;Linear Model 2&quot;)
+MSE_values&lt;-c(MSE_random_forest, MSE_boosting, MSE_lmod1, MSE_lmod2)
+MSE_comparison_df&lt;-tibble(model_name, MSE_values)
+
+index = which.min(MSE_comparison_df$MSE_values)
+print(paste0(&quot;The winner model is:&quot;,model_name[index]))</code></pre>
+<pre><code>## [1] &quot;The winner model is:Random Forest Model&quot;</code></pre>
 </div>
 <div id="automation" class="section level1">
 <h1>Automation</h1>
