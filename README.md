@@ -30,8 +30,11 @@ Here are the links to the generated analyses:
 The code used to create the analyses from a single .Rmd file is shown below:
 
 ```{r}
-apply(reports, MARGIN = 1,
-      FUN = function(x){
-        render(input = "Project3RMD.Rmd", output_file = x[[1]], params = x[[2]])
-      })
+library(rmarkdown)
+rmarkdown::render(input = "Lifestyle.md", output_file = "Lifestyle.html")
+rmarkdown::render(input = "Entertainment.md", output_file = "Entertainment.html")
+rmarkdown::render(input = "Business.md", output_file = "Business.html")
+rmarkdown::render(input = "SocialMedia.md", output_file = "SocialMedia.html")
+rmarkdown::render(input = "Tech.md", output_file = "Tech.html")
+rmarkdown::render(input = "World.md", output_file = "World.html")
 ```
