@@ -14,24 +14,26 @@ observations with 61 variables.
 In this project, we selected a subset of the variables as the predictor.
 Detailed descriptions for the predicting variables are listed below.
 
-- `n_tokens_title`: Number of words in the title.  
-- `n_tokens_content`: Number of words in the content.
-- `n_unique_tokens`: Rate of unique words in the content.  
-- `average_token_length`: Average length of the words in the content.  
-- `num_keywords`: Number of keywords in the metadata.  
-- `num_hrefs`: Number of links.  
-- `num_imgs`: Number of images.  
-- `num_videos`: Number of videos.  
-- `kw_min_min`: Worst keyword (min. shares).  
-- `kw_max_min`: Worst keyword (max. shares).  
-- `self_reference_min_shares`: Min. shares of referenced articles in
-  Mashable.  
-- `self_reference_max_shares`: Max. shares of referenced articles in
-  Mashable.  
-- `weekday_is_friday`: Was the article published on a Friday?  
-- `weekday_is_saturday`: Was the article published on a Saturday?  
-- `global_rate_positive_words`: Rate of positive words in the content.  
-- `global_rate_negative_words`: Rate of negative words in the content.
+-   `n_tokens_title`: Number of words in the title.  
+-   `n_tokens_content`: Number of words in the content.
+-   `n_unique_tokens`: Rate of unique words in the content.  
+-   `average_token_length`: Average length of the words in the
+    content.  
+-   `num_keywords`: Number of keywords in the metadata.  
+-   `num_hrefs`: Number of links.  
+-   `num_imgs`: Number of images.  
+-   `num_videos`: Number of videos.  
+-   `kw_min_min`: Worst keyword (min. shares).  
+-   `kw_max_min`: Worst keyword (max. shares).  
+-   `self_reference_min_shares`: Min. shares of referenced articles in
+    Mashable.  
+-   `self_reference_max_shares`: Max. shares of referenced articles in
+    Mashable.  
+-   `weekday_is_friday`: Was the article published on a Friday?  
+-   `weekday_is_saturday`: Was the article published on a Saturday?  
+-   `global_rate_positive_words`: Rate of positive words in the
+    content.  
+-   `global_rate_negative_words`: Rate of negative words in the content.
 
 The target variables is the `shares` variable indicating number of
 shares (target). The purpose of this project is to identify the optimal
@@ -107,8 +109,10 @@ variable.
 summary(dat_train$shares)
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##    35.0   833.2  1100.0  2230.4  1800.0 96500.0
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu. 
+    ##    35.0   833.2  1100.0  2230.4  1800.0 
+    ##    Max. 
+    ## 96500.0
 
 Let’s also look at a histogram for the `shares` variable to get an idea
 of the spread of this variable.
@@ -199,15 +203,19 @@ statistics to investigate the distributions.
 summary(dat_train$global_rate_positive_words)
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ## 0.00000 0.02187 0.03045 0.03130 0.03984 0.11273
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu. 
+    ## 0.00000 0.02187 0.03045 0.03130 0.03984 
+    ##    Max. 
+    ## 0.11273
 
 ``` r
 summary(dat_train$global_rate_negative_words)
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ## 0.00000 0.01105 0.01656 0.01704 0.02215 0.07504
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu. 
+    ## 0.00000 0.01105 0.01656 0.01704 0.02215 
+    ##    Max. 
+    ## 0.07504
 
 Let’s also look at how positive words are related to shares and number
 of images in an article. The scatterplot below shows the number of
@@ -244,13 +252,6 @@ ggplot(dat_train, aes(x=global_rate_negative_words, y=shares, color=num_imgs)) +
 # Modeling
 
 #### Spliting the Data
-
-**You’ll need to split the data into a training (70% of the data) and
-test set (30% of the data). Use set.seed() to make things reproducible.
-The goal is to create models for predicting the number of shares in some
-way. Each group member should contribute a linear regression model and
-an ensemble tree-based model. As we are automating things, describing
-the chosen model is tough, so no need to worry about that.**
 
 The entire dataset has been split into training set and test set in the
 Summarizations section. The training set is `dat_train` and the test set
@@ -303,17 +304,20 @@ plot(random_forest)
 ``` r
 best = which.min(random_forest$results$RMSE)
 random_forest$results[best,]
+```
+
+    ##   mtry     RMSE  Rsquared      MAE   RMSESD
+    ## 1    1 4622.749 0.0294949 1798.947 213.2914
+    ##    RsquaredSD    MAESD
+    ## 1 0.009895864 46.44756
+
+``` r
 random_forest_final = randomForest(formula = shares ~ .,data = dat_train[,-1],distribution = "gaussian",
                      mtry=random_forest$results[best,]$mtry)
 MSE_random_forest = mean((dat_test$shares-predict(random_forest_final, newdata = dat_test))^2)
 ```
 
 ### Boosted Tree Model
-
-**The second group member should fit a boosted tree model. Prior to each
-ensemble model, you should provide a short but reasonably thorough
-explanation of the ensemble model you are using (so one for each group
-member).**
 
 The basic principles of gradient boosting are as follows: given a loss
 function and a weak learner, the algorithm finds an additive model that
@@ -349,6 +353,16 @@ plot(boosting)
 ``` r
 best = which.min(boosting$results$RMSE)
 boosting$results[best,]
+```
+
+    ##     shrinkage interaction.depth n.minobsinnode
+    ## 184      0.05                 1             10
+    ##     n.trees     RMSE   Rsquared      MAE
+    ## 184     160 4525.219 0.03581753 1781.653
+    ##       RMSESD RsquaredSD    MAESD
+    ## 184 1032.302 0.01188491 126.9846
+
+``` r
 boosting_final = gbm(formula = shares ~ .,data = dat_train[,-1],distribution = "gaussian",
                      n.trees = boosting$results[best,]$n.trees,
                      shrinkage = boosting$results[best,]$shrinkage,
@@ -361,18 +375,15 @@ MSE_boosting = mean((dat_test$shares-predict(boosting_final, newdata = dat_test)
 
 ## Linear Regression Models
 
-**Prior to the models fit using linear regression, the first group
-member should provide a short but thorough explanation of the idea of a
-linear regression model.** Linear regression provides a relatively
-simple way to predict a quantitative response. In a simple linear
-regression we use a single predictor $X$ to predict a response $Y$. In a
-simple linear model we have two unknown constants, $\beta_{0}$
-represents the intercept and $\beta_{1}$ represents the slope.
-$\beta_{0}$ is the expected value of $Y$ when $X=0$. $\beta_{1}$ is the
-average change in $Y$ that is associated with an increase of one-unit of
-$X$. In linear regression we use our training data to produce estimated
-values for $\beta_{0}$ and $\beta_{1}$ which can then be used to make
-predictions on our test data.
+Linear regression provides a relatively simple way to predict a
+quantitative response. In a simple linear regression we use a single
+predictor $X$ to predict a response $Y$. In a simple linear model we
+have two unknown constants, $\beta_{0}$ represents the intercept and
+$\beta_{1}$ represents the slope. $\beta_{0}$ is the expected value of
+$Y$ when $X=0$. $\beta_{1}$ is the average change in $Y$ that is
+associated with an increase of one-unit of $X$. In linear regression we
+use our training data to produce estimated values for $\beta_{0}$ and
+$\beta_{1}$ which can then be used to make predictions on our test data.
 
 We can extend our simple linear regression model to include more than
 one predictor variable by assigning a different slope to each predictor
@@ -427,30 +438,3 @@ print(paste0("The winner model is:",model_name[index]))
 ```
 
     ## [1] "The winner model is:Boosted Model"
-
-# Automation
-
-We first need to create file names to output to and a list with each
-channel name for using in `render()`.
-
-``` r
-#Creating names for the channels for params
-channelIDs<-c("Lifestyle", "Entertainment", "Business", "SocialMedia", "Tech", "World")
-#Creating filenames
-output_file<- paste0(channelIDs, ".md")
-#Creating a list for each channel with just the channel parameter
-parameters = lapply(channelIDs, FUN = function(x){list(channel = x)})
-#Put into a data frame
-reports<- tibble(output_file, parameters)
-#Removing existing params from environment so that render will work properly
-rm(params)
-```
-
-We can now knit using `apply()`.
-
-``` r
-apply(reports, MARGIN = 1,
-      FUN = function(x){
-        render(input = "Project3RMD.Rmd", output_file = x[[1]], params = x[[2]])
-      })
-```
