@@ -1,7 +1,53 @@
-World Analysis
+World News Analysis
 ================
 Kelley Breeze and Chuanni He
 2022-10-31
+
+-   <a href="#introduction" id="toc-introduction">Introduction</a>
+-   <a href="#data" id="toc-data">Data</a>
+-   <a href="#subset-the-data" id="toc-subset-the-data">Subset the data</a>
+-   <a href="#summarizations" id="toc-summarizations">Summarizations</a>
+    -   <a href="#shares-variable" id="toc-shares-variable"><code>Shares</code>
+        Variable</a>
+    -   <a href="#relationship-between-shares-and-number-of-images"
+        id="toc-relationship-between-shares-and-number-of-images">Relationship
+        Between <code>Shares</code> and Number of Images</a>
+    -   <a href="#correlation-between-numeric-variables"
+        id="toc-correlation-between-numeric-variables">Correlation between
+        Numeric Variables</a>
+    -   <a href="#does-weekend-impact-the-shares-variable"
+        id="toc-does-weekend-impact-the-shares-variable">Does Weekend Impact the
+        <code>Shares</code> Variable?</a>
+    -   <a href="#contingency-tables" id="toc-contingency-tables">Contingency
+        Tables</a>
+    -   <a href="#summary-statistics-on-postive-and-negative-word-rates"
+        id="toc-summary-statistics-on-postive-and-negative-word-rates">Summary
+        Statistics on Postive and Negative Word Rates</a>
+    -   <a
+        href="#scatterplot-investigating-positive-word-rate-shares-and-number-of-images"
+        id="toc-scatterplot-investigating-positive-word-rate-shares-and-number-of-images">Scatterplot
+        Investigating Positive Word Rate, Shares, and Number of Images</a>
+    -   <a
+        href="#scatterplot-investigating-negative-word-rate-shares-and-number-of-images"
+        id="toc-scatterplot-investigating-negative-word-rate-shares-and-number-of-images">Scatterplot
+        Investigating Negative Word Rate, Shares, and Number of Images</a>
+-   <a href="#modeling" id="toc-modeling">Modeling</a>
+    -   <a href="#spliting-the-data" id="toc-spliting-the-data">Spliting the
+        Data</a>
+    -   <a href="#ensemble-models" id="toc-ensemble-models">Ensemble Models</a>
+        -   <a href="#random-forest-model" id="toc-random-forest-model">Random
+            Forest Model</a>
+        -   <a href="#boosted-tree-model" id="toc-boosted-tree-model">Boosted Tree
+            Model</a>
+    -   <a href="#linear-regression-models"
+        id="toc-linear-regression-models">Linear Regression Models</a>
+        -   <a href="#first-linear-regression-model-lmod1"
+            id="toc-first-linear-regression-model-lmod1">First Linear Regression
+            Model <code>lmod1</code></a>
+        -   <a href="#second-linear-regression-model-lmod2"
+            id="toc-second-linear-regression-model-lmod2">Second Linear Regression
+            Model <code>lmod2</code></a>
+-   <a href="#comparison" id="toc-comparison">Comparison</a>
 
 # Introduction
 
@@ -10,7 +56,8 @@ mechanism. The data to be analyzed is the Online News Popularity Data
 Set summarizing a heterogeneous set of features about articles published
 by Mashable in a period of two years. The goal is to predict the number
 of shares in social networks (popularity). The dataset contains 39,644
-observations with 61 variables.  
+observations with 61 variables.
+
 In this project, we selected a subset of the variables as the predictor.
 Detailed descriptions for the predicting variables are listed below.
 
@@ -41,17 +88,6 @@ predicting variables and methods to predict the number of shares. This
 project applied statistical prediction models such as linear regression,
 random forest model, and boosted tree model.
 
-#### Packages Used
-
-``` r
-library(tidyverse)
-library(caret)
-library(corrplot)
-library(gbm)
-library(randomForest)
-library(rmarkdown)
-```
-
 # Data
 
 The code below uses a relative file path to import our data.
@@ -62,9 +98,10 @@ onlineNewsData<-read_csv('OnlineNewsPopularity.csv')
 
 # Subset the data
 
-We create a new variable `data_channel` representing all data channels,
-and remove the six data channel variables. Next, we clean up the dataset
-to only include predicting variables and the response variable.
+We will create a new variable `data_channel` representing all data
+channels, and remove the six data channel variables. Next, we will clean
+up the dataset to only include predicting variables and the response
+variable.
 
 ``` r
 data_channel = rep(NA,nrow(onlineNewsData[,1]))
@@ -77,8 +114,11 @@ for (i in 1:nrow(onlineNewsData[,1])) {
   else if (onlineNewsData$data_channel_is_world[i]==1) {data_channel[i]="World"}
   else {data_channel[i]=NA}
 }
+
 onlineNewsData = onlineNewsData[,-c(14:19)]
+
 onlineNewsData = cbind(onlineNewsData,data_channel)
+
 onlineNewsData = onlineNewsData %>% 
   select(data_channel,n_tokens_title,n_tokens_content,n_unique_tokens,
          average_token_length,num_keywords,num_hrefs,num_imgs,num_videos,
@@ -89,9 +129,10 @@ onlineNewsData = onlineNewsData %>%
 
 # Summarizations
 
-First, let’s summarize the training data to look at the basic
-distribution of our selected variables. We need to fist split the data
-into training set and test set.
+Before we begin our analysis we first want to split the data into a
+training and test set. Once this is done we can move on to summarizing
+the training data to look at the basic distribution of our selected
+variables.
 
 ``` r
 set.seed(123)
@@ -101,42 +142,73 @@ dat_train <- onlineNewsData[train, ]
 dat_test <- onlineNewsData[test, ]
 ```
 
+<br>  
+<br>
+
+### `Shares` Variable
+
 The response variable that we are interested in is the `shares`
 variable. Let’s look at some basic summary statistics for the `shares`
-variable.
+variable. The `summary()` function will give us the five number summary
+for our `shares` variable. This includes the minimum and maximum values,
+as well as 1st quartile, median, and 3rd quartile values. The five
+number summary provides useful insight into the spread of our data,
+provides initial evidence of outliers in our data set that might need to
+be explored further, and also gives us an idea about the possible skew
+of our data.
+
+<br>
+
+#### Summary Statictics on the `Shares` Variable
 
 ``` r
 summary(dat_train$shares)
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu. 
-    ##    35.0   833.2  1100.0  2230.4  1800.0 
-    ##    Max. 
-    ## 96500.0
+    ##    Min. 1st Qu.  Median 
+    ##    35.0   833.2  1100.0 
+    ##    Mean 3rd Qu.    Max. 
+    ##  2230.4  1800.0 96500.0
 
-Let’s also look at a histogram for the `shares` variable to get an idea
-of the spread of this variable.
+<br>
+
+#### `Shares` Variable Histogram
+
+Let’s also look at a histogram for the `shares` variable to get another
+look at the spread and skew of this variable. Note that the presence of
+extreme outliers will impact the scale of the x-axis, and will change
+the resulting shape of the histogram.
 
 ``` r
 ggplot(dat_train, aes(x=shares)) + 
-  geom_histogram(binwidth = 1000) + 
-  labs(x="Total Shares", y="Number of Articles", title = "Histogram of Number of Article Shares") 
+  geom_histogram(binwidth = 3000) + 
+  labs(x="Total Shares", y="Number of Articles", title = "Histogram of Number of Article Shares")
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-Next we will do some summarization statistics and plots. We first make a
-scatter plot showing the relationship between `share` and `num_image`.
-If the points show an upward trend, then articles with more images tend
-to be shared more often. If we see a negative trend then articles with
-more images tend to be shared less often.
+<br>  
+<br>
+
+### Relationship Between `Shares` and Number of Images
+
+Next we will do some summarization statistics and plots. We will first
+make a scatter plot showing the relationship between `share` and
+`num_image`. If the points show an upward trend, then articles with more
+images tend to be shared more often. If we see a negative trend then
+articles with more images tend to be shared less often.
 
 ``` r
 plot(dat_train$num_imgs,dat_train$shares,type = "point",xlab = "Number of images",
      ylab = "Number of shares")
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+<br>  
+<br>
+
+### Correlation between Numeric Variables
 
 Next, we want to investigate the correlation between numeric variables.
 If the correlation coefficient is large and positive with `share`, then
@@ -158,7 +230,12 @@ cor_mat = cor(cbind(n_tokens_title=dat_train$n_tokens_title, n_tokens_content=da
 corrplot(cor_mat)
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+<br>  
+<br>
+
+### Does Weekend Impact the `Shares` Variable?
 
 Next, we also want to know whether the article is published during
 weekends will affect the shares. We use Friday and Saturday data as an
@@ -170,57 +247,101 @@ published during weekends.
 
 ``` r
 par(mfrow=c(1,2))
-boxplot(dat_train$shares[dat_train$weekday_is_friday==1], ylim=c(0,10000))
-boxplot(dat_train$shares[dat_train$weekday_is_saturday==1], ylim=c(0,10000))
+boxplot(dat_train$shares[dat_train$weekday_is_friday==1], ylim=c(0,10000), main="Day is Friday")
+boxplot(dat_train$shares[dat_train$weekday_is_saturday==1], ylim=c(0,10000), main="Day is Saturday")
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
-We made two contingency tables to list the number of publications on
-Fri. and Sat.
+<br>  
+<br>
+
+### Contingency Tables
+
+We made two contingency tables to compare the number of publications on
+Friday vs other days and Saturday vs other days.
+
+<br>
+
+#### Friday Coningency Table
+
+In this table the number of days that were Friday is listed under 1, all
+other days are listed under 0.
 
 ``` r
-table(dat_train$weekday_is_friday)
+table(dat_train$weekday_is_friday, dnn = "Friday")
 ```
 
-    ## 
+    ## Friday
     ##    0    1 
     ## 4975  923
 
+<br>
+
+#### Saturday Coningency Table
+
+In this table the number of days that were Saturday is listed under 1,
+all other days are listed under 0.
+
 ``` r
-table(dat_train$weekday_is_saturday)
+table(dat_train$weekday_is_saturday, dnn = "Saturday")
 ```
 
-    ## 
+    ## Saturday
     ##    0    1 
     ## 5509  389
+
+<br>  
+<br>
+
+### Summary Statistics on Postive and Negative Word Rates
 
 The positive words and negative words ratio can provide an overall
 attitude of the corresponding news. We made five-point summary
 statistics to investigate the distributions.
 
+<br>
+
+**Positive Word Rate Summary**
+
 ``` r
 summary(dat_train$global_rate_positive_words)
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu. 
-    ## 0.00000 0.02187 0.03045 0.03130 0.03984 
-    ##    Max. 
-    ## 0.11273
+    ##    Min. 1st Qu.  Median 
+    ## 0.00000 0.02187 0.03045 
+    ##    Mean 3rd Qu.    Max. 
+    ## 0.03130 0.03984 0.11273
+
+<br>
+
+**Negative Word Rate Summary**
 
 ``` r
 summary(dat_train$global_rate_negative_words)
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu. 
-    ## 0.00000 0.01105 0.01656 0.01704 0.02215 
-    ##    Max. 
-    ## 0.07504
+    ##    Min. 1st Qu.  Median 
+    ## 0.00000 0.01105 0.01656 
+    ##    Mean 3rd Qu.    Max. 
+    ## 0.01704 0.02215 0.07504
+
+<br>  
+<br>
+
+### Scatterplot Investigating Positive Word Rate, Shares, and Number of Images
 
 Let’s also look at how positive words are related to shares and number
-of images in an article. The scatterplot below shows the number of
-positive words in an article, colored by the number of images contained
-in the article.
+of images in an article. The scatterplot below shows the positive word
+rate in an article compared to the number of shares that the article
+had, colored by the number of images contained in the article. This can
+give us an idea about the relationship between shares and positive word
+rate, as well as help to identify patterns that we might see within the
+scatterplot according to the number of images in the article, which can
+be identified by the color of the data points. We might notice, for
+example, that shares and positive word rate seem to be positively
+correlated to one another, but only when there are a large number of
+images in the article.
 
 ``` r
 ggplot(dat_train, aes(x=global_rate_positive_words, y=shares, color=num_imgs)) + 
@@ -231,12 +352,18 @@ ggplot(dat_train, aes(x=global_rate_positive_words, y=shares, color=num_imgs)) +
   scale_color_gradient(name="Number of Images")
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+<br>
+
+### Scatterplot Investigating Negative Word Rate, Shares, and Number of Images
 
 Finally let’s look at how negative words are related to shares and
-number of images in an article. The scatterplot below shows the number
-of positive words in an article, colored by the number of images
-contained in the article.
+number of images in an article. The scatterplot below shows the negative
+word rate in an article by the number of shares, colored by the number
+of images contained in the article. The overall analysis of this
+scatterplot would be similar to what was done when looking at the
+scatterplot above of shares compared to positive word rate.
 
 ``` r
 ggplot(dat_train, aes(x=global_rate_negative_words, y=shares, color=num_imgs)) + 
@@ -247,15 +374,21 @@ ggplot(dat_train, aes(x=global_rate_negative_words, y=shares, color=num_imgs)) +
   scale_color_gradient(name="Number of Images")
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-15-1.png)<!-- --> <br>  
+<br>
 
 # Modeling
 
-#### Spliting the Data
+## Spliting the Data
 
-The entire dataset has been split into training set and test set in the
-Summarizations section. The training set is `dat_train` and the test set
-is `dat_test`.
+The entire dataset has been split into training set and test set at the
+beginning of the Summarizations section. The training set is `dat_train`
+and the test set is `dat_test`.
+
+<br>  
+<br>
+
+## Ensemble Models
 
 ### Random Forest Model
 
@@ -299,15 +432,17 @@ random_forest<- train(shares ~., data = dat_train[,-1],
 plot(random_forest)
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 best = which.min(random_forest$results$RMSE)
 random_forest$results[best,]
 ```
 
-    ##   mtry     RMSE  Rsquared      MAE   RMSESD
-    ## 1    1 4622.749 0.0294949 1798.947 213.2914
+    ##   mtry     RMSE  Rsquared
+    ## 1    1 4622.749 0.0294949
+    ##        MAE   RMSESD
+    ## 1 1798.947 213.2914
     ##    RsquaredSD    MAESD
     ## 1 0.009895864 46.44756
 
@@ -316,6 +451,9 @@ random_forest_final = randomForest(formula = shares ~ .,data = dat_train[,-1],di
                      mtry=random_forest$results[best,]$mtry)
 MSE_random_forest = mean((dat_test$shares-predict(random_forest_final, newdata = dat_test))^2)
 ```
+
+<br>  
+<br>
 
 ### Boosted Tree Model
 
@@ -348,19 +486,25 @@ boosting = train(shares ~ .,data = dat_train[,-1],method = "gbm",
 plot(boosting)
 ```
 
-![](World_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](World_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 best = which.min(boosting$results$RMSE)
 boosting$results[best,]
 ```
 
-    ##     shrinkage interaction.depth n.minobsinnode
-    ## 184      0.05                 1             10
-    ##     n.trees     RMSE   Rsquared      MAE
-    ## 184     160 4525.219 0.03581753 1781.653
-    ##       RMSESD RsquaredSD    MAESD
-    ## 184 1032.302 0.01188491 126.9846
+    ##     shrinkage
+    ## 184      0.05
+    ##     interaction.depth
+    ## 184                 1
+    ##     n.minobsinnode n.trees
+    ## 184             10     160
+    ##         RMSE   Rsquared
+    ## 184 4525.219 0.03581753
+    ##          MAE   RMSESD
+    ## 184 1781.653 1032.302
+    ##     RsquaredSD    MAESD
+    ## 184 0.01188491 126.9846
 
 ``` r
 boosting_final = gbm(formula = shares ~ .,data = dat_train[,-1],distribution = "gaussian",
@@ -372,6 +516,9 @@ MSE_boosting = mean((dat_test$shares-predict(boosting_final, newdata = dat_test)
 ```
 
     ## Using 160 trees...
+
+<br>  
+<br>
 
 ## Linear Regression Models
 
@@ -401,6 +548,9 @@ The most common way in which to fit a linear regression model is by
 minimizing the least squares. In the linear regression models here we
 want to minimize the test MSE to find the best model.
 
+<br>  
+<br>
+
 ### First Linear Regression Model `lmod1`
 
 For the first linear regression model, we fit a full model without
@@ -410,6 +560,9 @@ interaction term. Then obtain the test MSE on the test set.
 lmod1 = lm(shares~., data = dat_train[,-1])
 MSE_lmod1 = mean((dat_test$shares-predict(lmod1, newdata = dat_test))^2)
 ```
+
+<br>  
+<br>
 
 ### Second Linear Regression Model `lmod2`
 
@@ -421,6 +574,9 @@ interaction terms for `num_imgs`, `num_keywords`,
 lmod2 = lm(shares~ num_imgs*num_keywords*global_rate_negative_words*average_token_length, data = dat_train[,-1])
 MSE_lmod2 = mean((dat_test$shares-predict(lmod2, newdata = dat_test))^2)
 ```
+
+<br>  
+<br>
 
 # Comparison
 

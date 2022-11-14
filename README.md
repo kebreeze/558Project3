@@ -53,6 +53,12 @@ We can now knit using `apply()` to automatically generate reports for each data 
 ```{r}
 apply(reports, MARGIN = 1,
       FUN = function(x){
-        render(input = "Project3RMD.Rmd", output_file = x[[1]], params = x[[2]])
+        render(input = "Project3RMD.Rmd", 
+               output_file = x[[1]], 
+               params = x[[2]],
+               output_options = list(
+                 toc = TRUE,
+                 toc_depth = 3
+               ))
       })
 ```
