@@ -1,9 +1,5 @@
 # 558Project3
 
-1.  A brief description of the purpose of the repo  
-2.  A list of R packages used  
-3.  Links to the generated analyses  
-4.  The code used to create the analyses from a single .Rmd file (i.e. the render() code)  
 
 ## Purpose  
 This report contains a set of predictive models with automating mechanism. The data to be analyzed is the Online News Popularity Data Set summarizing a heterogeneous set of features about articles published by Mashable in a period of two years. The goal is to predict the number of shares in social networks (popularity). The dataset contains 39,644 observations with 61 variables.  
