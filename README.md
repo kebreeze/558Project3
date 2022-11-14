@@ -1,9 +1,5 @@
 # 558Project3
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 3c2199211ab013476ad3c2279702e34ddcb37b71
 ## Purpose  
 This report contains a set of predictive models with automating mechanism. The data to be analyzed is the Online News Popularity Data Set summarizing a heterogeneous set of features about articles published by Mashable in a period of two years. The goal is to predict the number of shares in social networks (popularity). The dataset contains 39,644 observations with 61 variables.  
   
