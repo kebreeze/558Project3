@@ -3,51 +3,51 @@ World News Analysis
 Kelley Breeze and Chuanni He
 2022-10-31
 
--   <a href="#introduction" id="toc-introduction">Introduction</a>
--   <a href="#data" id="toc-data">Data</a>
--   <a href="#subset-the-data" id="toc-subset-the-data">Subset the data</a>
--   <a href="#summarizations" id="toc-summarizations">Summarizations</a>
-    -   <a href="#shares-variable" id="toc-shares-variable"><code>Shares</code>
-        Variable</a>
-    -   <a href="#relationship-between-shares-and-number-of-images"
-        id="toc-relationship-between-shares-and-number-of-images">Relationship
-        Between <code>Shares</code> and Number of Images</a>
-    -   <a href="#correlation-between-numeric-variables"
-        id="toc-correlation-between-numeric-variables">Correlation between
-        Numeric Variables</a>
-    -   <a href="#does-weekend-impact-the-shares-variable"
-        id="toc-does-weekend-impact-the-shares-variable">Does Weekend Impact the
-        <code>Shares</code> Variable?</a>
-    -   <a href="#contingency-tables" id="toc-contingency-tables">Contingency
-        Tables</a>
-    -   <a href="#summary-statistics-on-postive-and-negative-word-rates"
-        id="toc-summary-statistics-on-postive-and-negative-word-rates">Summary
-        Statistics on Postive and Negative Word Rates</a>
-    -   <a
-        href="#scatterplot-investigating-positive-word-rate-shares-and-number-of-images"
-        id="toc-scatterplot-investigating-positive-word-rate-shares-and-number-of-images">Scatterplot
-        Investigating Positive Word Rate, Shares, and Number of Images</a>
-    -   <a
-        href="#scatterplot-investigating-negative-word-rate-shares-and-number-of-images"
-        id="toc-scatterplot-investigating-negative-word-rate-shares-and-number-of-images">Scatterplot
-        Investigating Negative Word Rate, Shares, and Number of Images</a>
--   <a href="#modeling" id="toc-modeling">Modeling</a>
-    -   <a href="#spliting-the-data" id="toc-spliting-the-data">Spliting the
-        Data</a>
-    -   <a href="#ensemble-models" id="toc-ensemble-models">Ensemble Models</a>
-        -   <a href="#random-forest-model" id="toc-random-forest-model">Random
-            Forest Model</a>
-        -   <a href="#boosted-tree-model" id="toc-boosted-tree-model">Boosted Tree
-            Model</a>
-    -   <a href="#linear-regression-models"
-        id="toc-linear-regression-models">Linear Regression Models</a>
-        -   <a href="#first-linear-regression-model-lmod1"
-            id="toc-first-linear-regression-model-lmod1">First Linear Regression
-            Model <code>lmod1</code></a>
-        -   <a href="#second-linear-regression-model-lmod2"
-            id="toc-second-linear-regression-model-lmod2">Second Linear Regression
-            Model <code>lmod2</code></a>
--   <a href="#comparison" id="toc-comparison">Comparison</a>
+- <a href="#introduction" id="toc-introduction">Introduction</a>
+- <a href="#data" id="toc-data">Data</a>
+- <a href="#subset-the-data" id="toc-subset-the-data">Subset the data</a>
+- <a href="#summarizations" id="toc-summarizations">Summarizations</a>
+  - <a href="#shares-variable" id="toc-shares-variable"><code>Shares</code>
+    Variable</a>
+  - <a href="#relationship-between-shares-and-number-of-images"
+    id="toc-relationship-between-shares-and-number-of-images">Relationship
+    Between <code>Shares</code> and Number of Images</a>
+  - <a href="#correlation-between-numeric-variables"
+    id="toc-correlation-between-numeric-variables">Correlation between
+    Numeric Variables</a>
+  - <a href="#does-weekend-impact-the-shares-variable"
+    id="toc-does-weekend-impact-the-shares-variable">Does Weekend Impact the
+    <code>Shares</code> Variable?</a>
+  - <a href="#contingency-tables" id="toc-contingency-tables">Contingency
+    Tables</a>
+  - <a href="#summary-statistics-on-postive-and-negative-word-rates"
+    id="toc-summary-statistics-on-postive-and-negative-word-rates">Summary
+    Statistics on Postive and Negative Word Rates</a>
+  - <a
+    href="#scatterplot-investigating-positive-word-rate-shares-and-number-of-images"
+    id="toc-scatterplot-investigating-positive-word-rate-shares-and-number-of-images">Scatterplot
+    Investigating Positive Word Rate, Shares, and Number of Images</a>
+  - <a
+    href="#scatterplot-investigating-negative-word-rate-shares-and-number-of-images"
+    id="toc-scatterplot-investigating-negative-word-rate-shares-and-number-of-images">Scatterplot
+    Investigating Negative Word Rate, Shares, and Number of Images</a>
+- <a href="#modeling" id="toc-modeling">Modeling</a>
+  - <a href="#spliting-the-data" id="toc-spliting-the-data">Spliting the
+    Data</a>
+  - <a href="#ensemble-models" id="toc-ensemble-models">Ensemble Models</a>
+    - <a href="#random-forest-model" id="toc-random-forest-model">Random
+      Forest Model</a>
+    - <a href="#boosted-tree-model" id="toc-boosted-tree-model">Boosted Tree
+      Model</a>
+  - <a href="#linear-regression-models"
+    id="toc-linear-regression-models">Linear Regression Models</a>
+    - <a href="#first-linear-regression-model-lmod1"
+      id="toc-first-linear-regression-model-lmod1">First Linear Regression
+      Model <code>lmod1</code></a>
+    - <a href="#second-linear-regression-model-lmod2"
+      id="toc-second-linear-regression-model-lmod2">Second Linear Regression
+      Model <code>lmod2</code></a>
+- <a href="#comparison" id="toc-comparison">Comparison</a>
 
 # Introduction
 
@@ -61,26 +61,24 @@ observations with 61 variables.
 In this project, we selected a subset of the variables as the predictor.
 Detailed descriptions for the predicting variables are listed below.
 
--   `n_tokens_title`: Number of words in the title.  
--   `n_tokens_content`: Number of words in the content.
--   `n_unique_tokens`: Rate of unique words in the content.  
--   `average_token_length`: Average length of the words in the
-    content.  
--   `num_keywords`: Number of keywords in the metadata.  
--   `num_hrefs`: Number of links.  
--   `num_imgs`: Number of images.  
--   `num_videos`: Number of videos.  
--   `kw_min_min`: Worst keyword (min. shares).  
--   `kw_max_min`: Worst keyword (max. shares).  
--   `self_reference_min_shares`: Min. shares of referenced articles in
-    Mashable.  
--   `self_reference_max_shares`: Max. shares of referenced articles in
-    Mashable.  
--   `weekday_is_friday`: Was the article published on a Friday?  
--   `weekday_is_saturday`: Was the article published on a Saturday?  
--   `global_rate_positive_words`: Rate of positive words in the
-    content.  
--   `global_rate_negative_words`: Rate of negative words in the content.
+- `n_tokens_title`: Number of words in the title.  
+- `n_tokens_content`: Number of words in the content.
+- `n_unique_tokens`: Rate of unique words in the content.  
+- `average_token_length`: Average length of the words in the content.  
+- `num_keywords`: Number of keywords in the metadata.  
+- `num_hrefs`: Number of links.  
+- `num_imgs`: Number of images.  
+- `num_videos`: Number of videos.  
+- `kw_min_min`: Worst keyword (min. shares).  
+- `kw_max_min`: Worst keyword (max. shares).  
+- `self_reference_min_shares`: Min. shares of referenced articles in
+  Mashable.  
+- `self_reference_max_shares`: Max. shares of referenced articles in
+  Mashable.  
+- `weekday_is_friday`: Was the article published on a Friday?  
+- `weekday_is_saturday`: Was the article published on a Saturday?  
+- `global_rate_positive_words`: Rate of positive words in the content.  
+- `global_rate_negative_words`: Rate of negative words in the content.
 
 The target variables is the `shares` variable indicating number of
 shares (target). The purpose of this project is to identify the optimal
@@ -510,13 +508,15 @@ MSE_boosting = mean((dat_test$shares-predict(boosting_final, newdata = dat_test)
 
 Linear regression provides a relatively simple way to predict a
 quantitative response. In a simple linear regression we use a single
-predictor $X$ to predict a response $Y$. In a simple linear model we
-have two unknown constants, $\beta_{0}$ represents the intercept and
-$\beta_{1}$ represents the slope. $\beta_{0}$ is the expected value of
-$Y$ when $X=0$. $\beta_{1}$ is the average change in $Y$ that is
-associated with an increase of one-unit of $X$. In linear regression we
-use our training data to produce estimated values for $\beta_{0}$ and
-$\beta_{1}$ which can then be used to make predictions on our test data.
+predictor **X** to predict a response **Y**. In a simple linear model we
+have two unknown constants, **Beta<sub>0</sub>** represents the
+intercept and **Beta<sub>1</sub>** represents the slope.
+**Beta<sub>0</sub>** is the expected value of **Y** when **X=0**.
+**Beta<sub>1</sub>** is the average change in **Y** that is associated
+with an increase of one-unit of **X**. In linear regression we use our
+training data to produce estimated values for **Beta<sub>0</sub>** and
+**Beta<sub>1</sub>** which can then be used to make predictions on our
+test data.
 
 We can extend our simple linear regression model to include more than
 one predictor variable by assigning a different slope to each predictor
