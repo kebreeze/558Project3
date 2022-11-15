@@ -26,7 +26,7 @@ Here are the links to the generated analyses:
 
 ## Code for Automation of Reports  
 
-There are two steps involved in the creation of analyses from a single .Rmd file. The first step is to create file names to output to and a list with each channel name for using in `render()`. During this step we also need to use the `rm()` function to remove existing params from the R environment so that the document will knit properly for each iteration. The second step is to generate the reports for each channel.  
+There are two steps involved in the creation of analyses from a single .Rmd file. The first step is to create file names to output to and a list with each channel name for using in `render()`. The second step is to generate the reports for each channel.  
 
 The code below generates file names and a list for each channel and stores this information in a tibble.  
 
@@ -42,9 +42,6 @@ parameters = lapply(channelIDs, FUN = function(x){list(channel = x)})
 
 #Put into a data frame
 reports<- tibble(output_file, parameters)
-
-#Removing existing params from environment so that render will work properly
-rm(params)
 ```
 
 

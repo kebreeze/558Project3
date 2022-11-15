@@ -2,7 +2,9 @@
 title: "`r params$channel` News Analysis"
 author: "Kelley Breeze and Chuanni He"
 date: "2022-10-31"
-output: github_document
+output:  
+  github_document:
+    html_preview: FALSE
 params:
   channel: "Entertainment"
 ---

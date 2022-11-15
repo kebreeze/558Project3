@@ -1,6 +1,6 @@
 # Automation  
 
-#We first need to create file names to output to and a list with each channel name for using in `render()`. We also need to use the `rm()` function to remove existing params so that the document will knit properly for each iteration.  
+#We first need to create file names to output to and a list with each channel name for using in `render()`. 
 
 
 #Creating names for the channels for params
@@ -11,8 +11,7 @@ output_file<- paste0(channelIDs, ".md")
 parameters = lapply(channelIDs, FUN = function(x){list(channel = x)})
 #Put into a data frame
 reports<- tibble(output_file, parameters)
-#Removing existing params from environment so that render will work properly
-rm(params)
+
 
 
 #We can now knit using `apply()` to automatically generate reports for each data channel.  

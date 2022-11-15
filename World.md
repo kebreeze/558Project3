@@ -165,10 +165,8 @@ of our data.
 summary(dat_train$shares)
 ```
 
-    ##    Min. 1st Qu.  Median 
-    ##    35.0   833.2  1100.0 
-    ##    Mean 3rd Qu.    Max. 
-    ##  2230.4  1800.0 96500.0
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ##    35.0   833.2  1100.0  2230.4  1800.0 96500.0
 
 <br>
 
@@ -308,10 +306,8 @@ statistics to investigate the distributions.
 summary(dat_train$global_rate_positive_words)
 ```
 
-    ##    Min. 1st Qu.  Median 
-    ## 0.00000 0.02187 0.03045 
-    ##    Mean 3rd Qu.    Max. 
-    ## 0.03130 0.03984 0.11273
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ## 0.00000 0.02187 0.03045 0.03130 0.03984 0.11273
 
 <br>
 
@@ -321,10 +317,8 @@ summary(dat_train$global_rate_positive_words)
 summary(dat_train$global_rate_negative_words)
 ```
 
-    ##    Min. 1st Qu.  Median 
-    ## 0.00000 0.01105 0.01656 
-    ##    Mean 3rd Qu.    Max. 
-    ## 0.01704 0.02215 0.07504
+    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    ## 0.00000 0.01105 0.01656 0.01704 0.02215 0.07504
 
 <br>  
 <br>
@@ -439,10 +433,8 @@ best = which.min(random_forest$results$RMSE)
 random_forest$results[best,]
 ```
 
-    ##   mtry     RMSE  Rsquared
-    ## 1    1 4622.749 0.0294949
-    ##        MAE   RMSESD
-    ## 1 1798.947 213.2914
+    ##   mtry     RMSE  Rsquared      MAE   RMSESD
+    ## 1    1 4622.749 0.0294949 1798.947 213.2914
     ##    RsquaredSD    MAESD
     ## 1 0.009895864 46.44756
 
@@ -493,18 +485,12 @@ best = which.min(boosting$results$RMSE)
 boosting$results[best,]
 ```
 
-    ##     shrinkage
-    ## 184      0.05
-    ##     interaction.depth
-    ## 184                 1
-    ##     n.minobsinnode n.trees
-    ## 184             10     160
-    ##         RMSE   Rsquared
-    ## 184 4525.219 0.03581753
-    ##          MAE   RMSESD
-    ## 184 1781.653 1032.302
-    ##     RsquaredSD    MAESD
-    ## 184 0.01188491 126.9846
+    ##     shrinkage interaction.depth n.minobsinnode
+    ## 184      0.05                 1             10
+    ##     n.trees     RMSE   Rsquared      MAE
+    ## 184     160 4525.219 0.03581753 1781.653
+    ##       RMSESD RsquaredSD    MAESD
+    ## 184 1032.302 0.01188491 126.9846
 
 ``` r
 boosting_final = gbm(formula = shares ~ .,data = dat_train[,-1],distribution = "gaussian",
